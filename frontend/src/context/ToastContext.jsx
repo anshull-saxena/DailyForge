@@ -1,6 +1,20 @@
-import { createContext, useContext, useState, useCallback } from "react";
+import { createContext, useContext, useState, useCallback, useRef, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { CheckCircle, XCircle, Info } from "lucide-react";
+
+const VALID_TYPES = ["success", "error", "info"];
+
+const iconMap = {
+  success: <CheckCircle size={18} className="shrink-0" />,
+  error: <XCircle size={18} className="shrink-0" />,
+  info: <Info size={18} className="shrink-0" />,
+};
+
+const styles = {
+  success: "bg-green-600 text-white",
+  error: "bg-red-600 text-white",
+  info: "bg-white dark:bg-[#1e293b] text-main border border-soft",
+};
 
 const ToastContext = createContext(null);
 
@@ -14,28 +28,27 @@ let toastId = 0;
 
 export function ToastProvider({ children }) {
   const [toasts, setToasts] = useState([]);
+  const timeoutsRef = useRef({});
 
   const removeToast = useCallback((id) => {
+    clearTimeout(timeoutsRef.current[id]);
+    delete timeoutsRef.current[id];
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
   const showToast = useCallback((message, type = "success", duration = 3000) => {
+    const safeType = VALID_TYPES.includes(type) ? type : "info";
     const id = ++toastId;
-    setToasts((prev) => [...prev, { id, message, type }]);
-    setTimeout(() => removeToast(id), duration);
+    setToasts((prev) => [...prev, { id, message, type: safeType }]);
+    timeoutsRef.current[id] = setTimeout(() => removeToast(id), duration);
   }, [removeToast]);
 
-  const iconMap = {
-    success: <CheckCircle size={18} className="shrink-0" />,
-    error: <XCircle size={18} className="shrink-0" />,
-    info: <Info size={18} className="shrink-0" />,
-  };
-
-  const styles = {
-    success: "bg-green-600 text-white",
-    error: "bg-red-600 text-white",
-    info: "bg-white dark:bg-[#1e293b] text-main border border-soft",
-  };
+  useEffect(() => {
+    return () => {
+      Object.values(timeoutsRef.current).forEach(clearTimeout);
+      timeoutsRef.current = {};
+    };
+  }, []);
 
   return (
     <ToastContext.Provider value={{ showToast }}>

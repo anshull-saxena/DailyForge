@@ -63,7 +63,7 @@ const useTasks = () => {
   const bulkDelete = async (ids) => {
     try {
       await api.post("/tasks/bulk-delete", { ids });
-      getTasks();
+      await getTasks();
       showToast(`${ids.length} task(s) deleted successfully`);
     } catch (error) {
       showToast(error?.response?.data?.message || "Failed to delete tasks", "error");
