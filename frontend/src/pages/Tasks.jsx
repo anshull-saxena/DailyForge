@@ -106,7 +106,13 @@ const handleActualDurationSubmit = async () => {
     const next = selectedCategories.includes(categoryName)
       ? selectedCategories.filter((cat) => cat !== categoryName)
       : [...selectedCategories, categoryName];
-    setSearchParams(next.length > 0 ? { categories: next.join(",") } : {});
+    const params = new URLSearchParams(searchParams);
+    if (next.length > 0) {
+      params.set("categories", next.join(","));
+    } else {
+      params.delete("categories");
+    }
+    setSearchParams(params);
   };
 
   const filteredTasks =
@@ -236,7 +242,11 @@ const handleActualDurationSubmit = async () => {
               <h3 className="text-sm font-semibold text-main">Filter by Category</h3>
               {selectedCategories.length > 0 && (
                 <button
-                  onClick={() => setSearchParams({})}
+                  onClick={() => {
+                    const params = new URLSearchParams(searchParams);
+                    params.delete("categories");
+                    setSearchParams(params);
+                  }}
                   className="ml-auto text-xs text-primary hover:underline cursor-pointer"
                 >
                   Clear all
