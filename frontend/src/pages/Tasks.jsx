@@ -7,10 +7,12 @@ import { Plus, ArrowLeft, Filter, Trash2 } from "lucide-react";
 import { CATEGORIES } from "../utils/categoryUtils";
 import { getCategoryColor } from "../utils/categoryUtils";
 import EmptyState from "../components/EmptyState";
+import { useToast } from "../context/ToastContext";
 
 export default function Tasks() {
   const navigate = useNavigate();
   const { tasks, addTask, updateTask, deleteTask, bulkDelete, bulkUpdate } = useTasks();
+  const { showToast } = useToast();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
   const [taskError, setTaskError] = useState("");
@@ -69,7 +71,7 @@ const handleActualDurationSubmit = async () => {
   const durationValue = Number(actualDuration);
 
   if (Number.isNaN(durationValue) || durationValue <= 0) {
-    alert("Please enter a valid duration in minutes");
+    showToast("Please enter a valid duration in minutes", "error");
     return;
   }
 
