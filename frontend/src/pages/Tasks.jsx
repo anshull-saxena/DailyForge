@@ -15,7 +15,10 @@ export default function Tasks() {
   const [editingTask, setEditingTask] = useState(null);
   const [taskError, setTaskError] = useState("");
   const [searchParams, setSearchParams] = useSearchParams();
-  const selectedCategories = searchParams.get("categories")?.split(",").filter(Boolean) || [];
+  const selectedCategories =
+    searchParams.getAll("categories").filter(Boolean).length > 0
+      ? searchParams.getAll("categories").filter(Boolean)
+      : searchParams.get("categories")?.split(",").filter(Boolean) || [];
   const [selectedIds, setSelectedIds] = useState([]);
   const [bulkPriority, setBulkPriority] = useState("");
   const [bulkDueDate, setBulkDueDate] = useState("");
